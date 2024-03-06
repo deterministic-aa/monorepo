@@ -3,5 +3,8 @@
   "packageManager": "yarn@4.1.1",
   "workspaces": [
     "packages/*"
-  ]
+  ],
+  "devDependencies": {
+    "@nomicfoundation/hardhat-verify": "^2.0.4"
+  }
 }
