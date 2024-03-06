@@ -1,6 +1,5 @@
 {
   "name": "deterministic-aa",
-  "private": true,
   "packageManager": "yarn@4.1.1",
   "workspaces": [
     "packages/*"
