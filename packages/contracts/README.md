@@ -1,13 +1,17 @@
-# Sample Hardhat Project
+# @deterministic-aa/contracts
 
-This project demonstrates a basic Hardhat use case. It comes with a sample contract, a test for that contract, and a script that deploys that contract.
+The `@deterministic-aa/contracts` package provides Solidity contracts for creating and managing deterministic accounts in a secure and non-custodial manner. It includes the `DeterministicAccountFactory` contract, which facilitates the creation of deterministic ERC4337 accounts using various factories.
 
-Try running some of the following tasks:
+## Features
 
-```shell
-npx hardhat help
-npx hardhat test
-REPORT_GAS=true npx hardhat test
-npx hardhat node
-npx hardhat run scripts/deploy.ts
-```
+- Deterministic ERC4337 Account Creation
+- Ownership Transfer Capabilities
+- EIP-712 Signing for Secure Transactions
+
+## Disclaimer
+
+This package and the contracts within have not been audited. Use at your own risk. We strongly recommend conducting thorough audits and security reviews before deploying in production environments.
+
+## License
+
+This project is licensed under the LGPL-3.0-or-later License.

@@ -1,10 +1,17 @@
 {
   "name": "deterministic-aa",
+  "private": true,
   "packageManager": "yarn@4.1.1",
   "workspaces": [
     "packages/*"
   ],
-  "devDependencies": {
-    "@nomicfoundation/hardhat-verify": "^2.0.4"
+  "scripts": {
+    "build": "yarn workspaces foreach --all -pt --no-private run build",
+    "test": "yarn workspaces foreach --all -pt --no-private run test",
+    "publish": "yarn workspaces foreach --all -pt --no-private npm publish",
+    "version:prerelease": "yarn workspaces foreach --all -pt --no-private version prerelease",
+    "version:patch": "yarn workspaces foreach --all -pt --no-private version patch",
+    "version:minor": "yarn workspaces foreach --all -pt --no-private version minor",
+    "version:major": "yarn workspaces foreach --all -pt --no-private version major"
   }
 }

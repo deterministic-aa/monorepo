@@ -37,6 +37,7 @@ __metadata:
     "@nomicfoundation/hardhat-ethers": "npm:^3.0.5"
     "@nomicfoundation/hardhat-network-helpers": "npm:^1.0.10"
     "@nomicfoundation/hardhat-toolbox": "npm:^4.0.0"
+    "@nomicfoundation/hardhat-verify": "npm:^2.0.4"
     "@nomicfoundation/hardhat-viem": "npm:^2.0.0"
     "@openzeppelin/contracts": "npm:^5.0.2"
     "@typechain/ethers-v6": "npm:^0.5.1"
@@ -2367,8 +2368,6 @@ __metadata:
 "deterministic-aa@workspace:.":
   version: 0.0.0-use.local
   resolution: "deterministic-aa@workspace:."
-  dependencies:
-    "@nomicfoundation/hardhat-verify": "npm:^2.0.4"
   languageName: unknown
   linkType: soft
 
@@ -2418,7 +2417,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"elliptic@npm:6.5.4, elliptic@npm:^6.5.2, elliptic@npm:^6.5.4":
+"elliptic@npm:6.5.4":
   version: 6.5.4
   resolution: "elliptic@npm:6.5.4"
   dependencies:
@@ -2430,6 +2429,21 @@ __metadata:
     minimalistic-assert: "npm:^1.0.1"
     minimalistic-crypto-utils: "npm:^1.0.1"
   checksum: 10/2cd7ff4b69720dbb2ca1ca650b2cf889d1df60c96d4a99d331931e4fe21e45a7f3b8074e86618ca7e56366c4b6258007f234f9d61d9b0c87bbbc8ea990b99e94
+  languageName: node
+  linkType: hard
+
+"elliptic@npm:^6.5.2, elliptic@npm:^6.5.4":
+  version: 6.5.5
+  resolution: "elliptic@npm:6.5.5"
+  dependencies:
+    bn.js: "npm:^4.11.9"
+    brorand: "npm:^1.1.0"
+    hash.js: "npm:^1.0.0"
+    hmac-drbg: "npm:^1.0.1"
+    inherits: "npm:^2.0.4"
+    minimalistic-assert: "npm:^1.0.1"
+    minimalistic-crypto-utils: "npm:^1.0.1"
+  checksum: 10/5444b4f18e0c0fdfa14de26f69f7dbc44c78a211e91825823d698dcc91071ef1a3954d87730f364183fc83b0a86d8affed864e347da2e549bdcead3b46de126f
   languageName: node
   linkType: hard
 
@@ -2905,10 +2919,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"fp-ts@npm:1.19.3, fp-ts@npm:^1.0.0":
+"fp-ts@npm:1.19.3":
   version: 1.19.3
   resolution: "fp-ts@npm:1.19.3"
   checksum: 10/3b3426f9a033b3e1b43f68da1baeb9d25b1a7cfeda0f55d4eadf0a1ab951898edc8b3453e4fec3113c140c98fdbf5fe8ab5232d349376ea7920e280af4e52050
+  languageName: node
+  linkType: hard
+
+"fp-ts@npm:^1.0.0":
+  version: 1.19.5
+  resolution: "fp-ts@npm:1.19.5"
+  checksum: 10/17aa04bbbba9096ac32efd4f192de6211687cab195c423d4072a904f1346c2d508243880685d6f4bb4be29e5f337a67cfa211645e491491683b6aaff23b5dd4a
   languageName: node
   linkType: hard
 
@@ -3086,7 +3107,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"glob@npm:7.2.0, glob@npm:^7.1.3":
+"glob@npm:7.2.0":
   version: 7.2.0
   resolution: "glob@npm:7.2.0"
   dependencies:
@@ -3141,7 +3162,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"glob@npm:^7.0.0":
+"glob@npm:^7.0.0, glob@npm:^7.1.3":
   version: 7.2.3
   resolution: "glob@npm:7.2.3"
   dependencies:
@@ -4039,12 +4060,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"minimatch@npm:5.0.1, minimatch@npm:^5.0.1":
+"minimatch@npm:5.0.1":
   version: 5.0.1
   resolution: "minimatch@npm:5.0.1"
   dependencies:
     brace-expansion: "npm:^2.0.1"
   checksum: 10/2656580f18d9f38ada186196fcc72dc9076d70f7227adc664e72614d464e075dc4ae3936e6742519e09e336996ef33c6035e606888b12f65ca7fda792ddd2085
+  languageName: node
+  linkType: hard
+
+"minimatch@npm:^5.0.1":
+  version: 5.1.6
+  resolution: "minimatch@npm:5.1.6"
+  dependencies:
+    brace-expansion: "npm:^2.0.1"
+  checksum: 10/126b36485b821daf96d33b5c821dac600cc1ab36c87e7a532594f9b1652b1fa89a1eebcaad4dff17c764dce1a7ac1531327f190fed5f97d8f6e5f889c116c429
   languageName: node
   linkType: hard
 
@@ -5781,28 +5811,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"viem@npm:^2.7.19":
-  version: 2.7.19
-  resolution: "viem@npm:2.7.19"
-  dependencies:
-    "@adraffy/ens-normalize": "npm:1.10.0"
-    "@noble/curves": "npm:1.2.0"
-    "@noble/hashes": "npm:1.3.2"
-    "@scure/bip32": "npm:1.3.2"
-    "@scure/bip39": "npm:1.2.1"
-    abitype: "npm:1.0.0"
-    isows: "npm:1.0.3"
-    ws: "npm:8.13.0"
-  peerDependencies:
-    typescript: ">=5.0.4"
-  peerDependenciesMeta:
-    typescript:
-      optional: true
-  checksum: 10/c3c95e5d67a57138980a3fa381fb019696cd71bcf183b1148ee37f9bed8b465907bd1701db0ee8856b6686095272f8cfb6f5654ed806f2c89d39dc75ddbd9f20
-  languageName: node
-  linkType: hard
-
-"viem@npm:^2.7.20":
+"viem@npm:^2.7.19, viem@npm:^2.7.20":
   version: 2.7.20
   resolution: "viem@npm:2.7.20"
   dependencies:
@@ -6015,10 +6024,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"yargs-parser@npm:20.2.4, yargs-parser@npm:^20.2.2":
+"yargs-parser@npm:20.2.4":
   version: 20.2.4
   resolution: "yargs-parser@npm:20.2.4"
   checksum: 10/db8f251ae40e24782d5c089ed86883ba3c0ce7f3c174002a67ec500802f928df9d505fea5d04829769221ce20b0f69f6fb1138fbb2e2fb102e3e9d426d20edab
+  languageName: node
+  linkType: hard
+
+"yargs-parser@npm:^20.2.2":
+  version: 20.2.9
+  resolution: "yargs-parser@npm:20.2.9"
+  checksum: 10/0188f430a0f496551d09df6719a9132a3469e47fe2747208b1dd0ab2bb0c512a95d0b081628bbca5400fb20dbf2fabe63d22badb346cecadffdd948b049f3fcc
   languageName: node
   linkType: hard
 

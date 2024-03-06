@@ -16,11 +16,10 @@ jobs:
         with:
           node-version: 18
       - run: yarn
-      - run: yarn workspaces foreach --all -pt run build
-      - run: yarn workspaces foreach --all -pt run test
+      - run: yarn build
+      - run: yarn test
         env:
           DEV_RPC_URL: ${{secrets.DEV_RPC_URL}}
-
 
   publish-npm:
     needs: build
@@ -31,6 +30,7 @@ jobs:
         with:
           node-version: 18
           registry-url: https://registry.npmjs.org/
-      - run: yarn workspaces foreach --all -pt npm publish
+      - run: yarn config set npmAuthToken $NODE_AUTH_TOKEN
         env:
           NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
+      - run: yarn publish

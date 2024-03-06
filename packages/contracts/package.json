@@ -4,7 +4,8 @@
   "license": "LGPL-3.0-or-later",
   "scripts": {
     "compile": "hardhat compile && hardhat typechain",
-    "test": "echo 'you should configure .env to run the test' && hardhat test"
+    "test": "echo 'you should configure .env to run the test' && hardhat test",
+    "publish": "npm ci && npm publish"
   },
   "files": [
     "contracts"
@@ -15,6 +16,7 @@
     "@nomicfoundation/hardhat-ethers": "^3.0.5",
     "@nomicfoundation/hardhat-network-helpers": "^1.0.10",
     "@nomicfoundation/hardhat-toolbox": "^4.0.0",
+    "@nomicfoundation/hardhat-verify": "^2.0.4",
     "@nomicfoundation/hardhat-viem": "^2.0.0",
     "@typechain/ethers-v6": "^0.5.1",
     "@typechain/hardhat": "^9.1.0",

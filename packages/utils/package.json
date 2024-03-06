@@ -1,8 +1,8 @@
 {
   "name": "@deterministic-aa/utils",
+  "version": "0.1.0",
   "description": "Simple Utils for Deterministic AA",
   "license": "LGPL-3.0-or-later",
-  "version": "0.1.0",
   "packageManager": "yarn@4.1.1",
   "main": "./dist/cjs/index.js",
   "types": "./dist/types/index.d.ts",
