@@ -1,0 +1,3 @@
+export enum SupportedFactory {
+  LIGHT_ACCOUNT_FACTORY = "0x00004EC70002a32400f8ae005A26081065620D20",
+}

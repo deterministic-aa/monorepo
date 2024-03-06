@@ -1,0 +1,23 @@
+{
+  "compilerOptions": {
+    "target": "es2020",
+    "module": "commonjs",
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+    "typeRoots": [
+      "./artifacts/*",
+      "./node_modules/@types",
+      "../../node_modules/@types"
+    ],
+    "paths": {
+      "*": [
+        "./artifacts/*",
+        "./node_modules/*",
+        "../../node_modules/*"
+      ]
+    }
+  },
+}

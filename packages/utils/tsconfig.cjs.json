@@ -1,0 +1,29 @@
+{
+    "compilerOptions": {
+        "allowSyntheticDefaultImports": true,
+        "lib": [
+            "dom",
+            "esnext"
+        ],
+        "module": "CommonJS",
+        "moduleResolution": "node",
+        "skipLibCheck": true,
+        "resolveJsonModule": true,
+        "outDir": "./dist/cjs",
+        "baseUrl": "./",
+        "rootDir": "./src",
+        "declaration": true,
+        "declarationDir": "./dist/types",
+        /* Mono Repo */
+        "typeRoots": [
+            "./node_modules/@types",
+            "../../node_modules/@types"
+        ],
+        "paths": {
+            "*": [
+                "./node_modules/*",
+                "../../node_modules/*"
+            ]
+        }
+    }
+}

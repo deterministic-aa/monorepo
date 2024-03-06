@@ -1,0 +1,23 @@
+{
+    "compilerOptions": {
+      "allowSyntheticDefaultImports": true,
+      "lib": ["dom", "esnext"],
+      "module": "ESNext",
+      "moduleResolution": "node",
+      "skipLibCheck": true,
+      "resolveJsonModule": true,
+      "outDir": "./dist/esm",
+      "baseUrl": "./",
+      "rootDir": "./src",
+      "declaration": true,
+      "declarationDir": "./dist/types",
+      /* Mono Repo */
+      "typeRoots": [
+        "./node_modules/@types",
+        "../../node_modules/@types"
+      ],
+      "paths": {
+        "*": ["./node_modules/*", "../../node_modules/*"]
+      }
+    }
+  }

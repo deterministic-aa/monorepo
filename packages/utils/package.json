@@ -1,0 +1,31 @@
+{
+  "name": "@deterministic-aa/utils",
+  "description": "Simple Utils for Deterministic AA",
+  "license": "LGPL-3.0-or-later",
+  "version": "0.1.0",
+  "packageManager": "yarn@4.1.1",
+  "main": "./dist/cjs/index.js",
+  "types": "./dist/types/index.d.ts",
+  "module": "./dist/esm/index.js",
+  "exports": {
+    ".": {
+      "import": "./dist/esm/index.js",
+      "require": "./dist/cjs/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build:cjs": "tsc --project tsconfig.cjs.json",
+    "build:esm": "tsc --project tsconfig.esm.json",
+    "build": "yarn build:cjs && yarn build:esm"
+  },
+  "peerDependencies": {
+    "viem": "^2.7.19"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.3",
+    "viem": "^2.7.19"
+  }
+}
