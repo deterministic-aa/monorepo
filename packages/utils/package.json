@@ -1,6 +1,6 @@
 {
   "name": "@deterministic-aa/utils",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Simple Utils for Deterministic AA",
   "license": "LGPL-3.0-or-later",
   "packageManager": "yarn@4.1.1",
