@@ -4,6 +4,7 @@
       "lib": ["dom", "esnext"],
       "module": "ESNext",
       "moduleResolution": "node",
+      "target": "ESNext",
       "skipLibCheck": true,
       "resolveJsonModule": true,
       "outDir": "./dist/esm",

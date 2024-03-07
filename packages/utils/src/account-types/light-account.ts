@@ -1,14 +1,60 @@
 import {
   Address,
   Hex,
+  PublicClient,
   encodeAbiParameters,
   encodeFunctionData,
   encodePacked,
   getCreate2Address,
   keccak256,
+  signatureToHex,
+  toHex,
 } from "viem";
+import { privateKeyToAddress } from "viem/accounts";
+import { secp256k1 } from "@noble/curves/secp256k1";
 import { SupportedFactory } from "../supported-factories";
+import { LightAccountSigner } from "../supported-signers";
 import { DETERMINISTIC_AA_V010 } from "../constants";
+
+const abi = [
+  {
+    type: "function",
+    name: "initialize",
+    inputs: [{ name: "owner", type: "address" }],
+  },
+  {
+    type: "function",
+    name: "transferOwnership",
+    inputs: [{ name: "newOwner", type: "address" }],
+  },
+  {
+    type: "function",
+    name: "getMessageHash",
+    inputs: [
+      {
+        name: "message",
+        type: "bytes",
+      },
+    ],
+    outputs: [
+      {
+        type: "bytes32",
+      },
+    ],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    name: "owner",
+    inputs: [],
+    outputs: [
+      {
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
+  },
+];
 
 export const getLightAccountAddress = (salt: Hex, daFactory?: Address) => {
   const IMPLEMENTATION = "0xae8c656ad28F2B59a196AB61815C16A0AE1c3cba";
@@ -31,13 +77,7 @@ export const getLightAccountAddress = (salt: Hex, daFactory?: Address) => {
         [
           IMPLEMENTATION,
           encodeFunctionData({
-            abi: [
-              {
-                inputs: [{ name: "owner", type: "address" }],
-                name: "initialize",
-                type: "function",
-              },
-            ],
+            abi,
             functionName: "initialize",
             args: [daFactory || DETERMINISTIC_AA_V010],
           }),
@@ -55,14 +95,46 @@ export const getLightAccountAddress = (salt: Hex, daFactory?: Address) => {
 
 export const getLightAccountTransferOwnershipCode = (owner: Address) => {
   return encodeFunctionData({
-    abi: [
-      {
-        inputs: [{ name: "newOwner", type: "address" }],
-        name: "transferOwnership",
-        type: "function",
-      },
-    ],
+    abi,
     functionName: "transferOwnership",
     args: [owner],
   });
+};
+
+export type GetLightAccountSignatureInput = {
+  publicClient: PublicClient;
+  account: LightAccountSigner;
+  digest: Hex;
+};
+
+export const getLightAccountSignature = async (
+  args: GetLightAccountSignatureInput
+): Promise<Hex> => {
+  const { publicClient, account, digest } = args;
+  const [messageHash, owner]: [Hex, Address] = (await Promise.all([
+    publicClient.readContract({
+      address: account.address,
+      abi,
+      functionName: "getMessageHash",
+      args: [encodeAbiParameters([{ type: "bytes32" }], [digest])],
+    }),
+    publicClient.readContract({
+      address: account.address,
+      abi,
+      functionName: "owner",
+    }),
+  ])) as any;
+  if (owner !== privateKeyToAddress(account.privateKey)) {
+    throw new Error("Invalid owner");
+  }
+  const { r, s, recovery } = secp256k1.sign(
+    messageHash.slice(2),
+    account.privateKey.slice(2)
+  );
+  const signature = signatureToHex({
+    r: toHex(r),
+    s: toHex(s),
+    v: recovery ? 28n : 27n,
+  });
+  return signature;
 };

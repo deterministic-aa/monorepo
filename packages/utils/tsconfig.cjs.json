@@ -6,6 +6,7 @@
             "esnext"
         ],
         "module": "CommonJS",
+        "target": "ESNext",
         "moduleResolution": "node",
         "skipLibCheck": true,
         "resolveJsonModule": true,

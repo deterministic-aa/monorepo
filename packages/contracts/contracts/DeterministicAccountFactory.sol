@@ -1,7 +1,8 @@
-// SPDX-License-Identifier: LGPL-3.0-or-later
+// SPDX-License-Identifier: GPL-3.0
 pragma solidity ^0.8.24;
 import {EIP712} from "@openzeppelin/contracts/utils/cryptography/EIP712.sol";
 import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
+import {IERC1271} from "@openzeppelin/contracts/interfaces/IERC1271.sol";
 import {IERC4337Factory} from "./interfaces/IERC4337Factory.sol";
 import {IOwnable} from "./interfaces/IOwnable.sol";
 
@@ -34,7 +35,7 @@ contract DeterministicAccountFactory is EIP712 {
         address owner
     );
 
-    constructor() EIP712("DeterministicAccountFactory", "0.1.0") {}
+    constructor() EIP712("DeterministicAccountFactory", "0.2.0") {}
 
     /**
      * @notice Creates a new account with specified parameters.
@@ -55,22 +56,26 @@ contract DeterministicAccountFactory is EIP712 {
      * @notice Creates a new account with specified parameters and signature verification.
      * @param factory The factory address to use for creating the account.
      * @param salt A unique salt to ensure address determinism.
-     * @param transferOwnershipCode Function call data to transfer ownership.
+     * @param securedBy The address that secured the account.
      * @param signature ECDSA signature for TypedDataV4
+     * @param transferOwnershipCode Function call data to transfer ownership.
      * @return The address of the newly created account.
      */
-    function createAccountWithSignature(
+    function createSecuredAccount(
         address factory,
         uint256 salt,
-        bytes calldata transferOwnershipCode,
-        bytes calldata signature
+        address securedBy,
+        bytes calldata signature,
+        bytes calldata transferOwnershipCode
     ) external payable returns (address) {
-        address securedBy = _recoverSigner(
+        bool isValidSignature = hasValidSignature(
             factory,
             salt,
             transferOwnershipCode,
+            securedBy,
             signature
         );
+        require(isValidSignature, "Invalid signature");
         return _createAccount(factory, securedBy, salt, transferOwnershipCode);
     }
 
@@ -90,6 +95,42 @@ contract DeterministicAccountFactory is EIP712 {
             keccak256(abi.encodePacked(securedBy, salt))
         );
         return IERC4337Factory(factory).getAddress(address(this), wrappedSalt);
+    }
+
+    /**
+     * @notice Verifies if a signature is valid for the given account creation parameters.
+     * @dev This function checks the validity of a signature given the account creation parameters.
+     * It supports verification for both Externally Owned Accounts (EOAs) and smart contract accounts implementing EIP-1271.
+     * For EOAs, it uses ECDSA signature recovery to compare the signer's address with `securedBy`.
+     * For smart contract accounts, it calls the `isValidSignature` function of the EIP-1271 standard.
+     * @param factory The factory address to use for creating the account.
+     * @param salt A unique salt to ensure address determinism.
+     * @param transferOwnershipCode Function call data to transfer ownership.
+     * @param securedBy The address securing the account.
+     * @param signature ECDSA signature for TypedDataV4
+     * @return isValid A boolean value indicating whether the signature is valid (`true`) or not (`false`).
+     */
+    function hasValidSignature(
+        address factory,
+        uint256 salt,
+        bytes calldata transferOwnershipCode,
+        address securedBy,
+        bytes calldata signature
+    ) public view returns (bool) {
+        bytes32 hashed = _hashCreateAccountCode(
+            factory,
+            salt,
+            transferOwnershipCode
+        );
+        if (securedBy.code.length > 0) {
+            // Smart Contract Account
+            return
+                IERC1271(securedBy).isValidSignature(hashed, signature) ==
+                IERC1271.isValidSignature.selector;
+        } else {
+            // Externally Owned Account
+            return ECDSA.recover(hashed, signature) == securedBy;
+        }
     }
 
     function _createAccount(
@@ -119,12 +160,11 @@ contract DeterministicAccountFactory is EIP712 {
         return account;
     }
 
-    function _recoverSigner(
+    function _hashCreateAccountCode(
         address factory,
         uint256 salt,
-        bytes memory transferOwnershipCode,
-        bytes memory signature
-    ) internal view returns (address) {
+        bytes memory transferOwnershipCode
+    ) internal view returns (bytes32) {
         bytes32 structHash = keccak256(
             abi.encode(
                 CREATE_ACCOUNT_TYPEHASH,
@@ -133,8 +173,6 @@ contract DeterministicAccountFactory is EIP712 {
                 keccak256(transferOwnershipCode)
             )
         );
-        bytes32 hash = _hashTypedDataV4(structHash);
-        address signer = ECDSA.recover(hash, signature);
-        return signer;
+        return _hashTypedDataV4(structHash);
     }
 }
