@@ -7,21 +7,23 @@ export enum SignerType {
 }
 
 export interface DeterministicAccountSigner {
-  type: SignerType.DETERMINISTIC_ACCOUNT_SIGNER;
   address: Address;
+  type: SignerType.DETERMINISTIC_ACCOUNT_SIGNER;
+  signerAddress: Address;
   signer: WalletClient;
 }
 
 export interface EOASigner {
-  type: SignerType.EOA;
   address: Address;
+  type: SignerType.EOA;
   signer: WalletClient;
 }
 
 export interface LightAccountSigner {
-  type: SignerType.LIGHT_ACCOUNT;
   address: Address;
-  privateKey: Hex;
+  type: SignerType.LIGHT_ACCOUNT;
+  signerAddress: Address;
+  signerPrivateKey: Hex;
 }
 
 export type SupportedSigner = EOASigner | LightAccountSigner | DeterministicAccountSigner;

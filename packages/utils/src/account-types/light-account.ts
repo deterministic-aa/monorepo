@@ -124,12 +124,12 @@ export const getLightAccountSignature = async (
       functionName: "owner",
     }),
   ])) as any;
-  if (owner !== privateKeyToAddress(account.privateKey)) {
+  if (owner !== privateKeyToAddress(account.signerPrivateKey)) {
     throw new Error("Invalid owner");
   }
   const { r, s, recovery } = secp256k1.sign(
     messageHash.slice(2),
-    account.privateKey.slice(2)
+    account.signerPrivateKey.slice(2)
   );
   const signature = signatureToHex({
     r: toHex(r),

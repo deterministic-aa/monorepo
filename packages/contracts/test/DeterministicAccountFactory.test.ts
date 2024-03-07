@@ -130,7 +130,9 @@ describe("DeterministicAccountFactory.sol", function () {
           );
           const publicClient = await hre.viem.getPublicClient();
           const timestamp = Math.floor(Date.now() / 1000) + 100;
-          await signerContract.connect(deployer).addSigner(serverAccount.address, timestamp);
+          await signerContract
+            .connect(deployer)
+            .addSigner(serverAccount.address, timestamp);
           const salt = "0x987654321";
           const offchainPrediction = getDeterministicAddress({
             factory: SupportedFactory.LIGHT_ACCOUNT_FACTORY,
@@ -145,11 +147,11 @@ describe("DeterministicAccountFactory.sol", function () {
           const signature = await getSignatureForSecuredAccount({
             publicClient,
             factory: SupportedFactory.LIGHT_ACCOUNT_FACTORY,
-            securedBy: signerContractAddress,
-            signer: {
+            securedBy: {
+              address: signerContractAddress,
               type: SignerType.DETERMINISTIC_ACCOUNT_SIGNER,
               signer: serverWalletClient,
-              address: serverAccount.address as `0x${string}`,
+              signerAddress: serverAccount.address as `0x${string}`,
             },
             salt,
             owner: user.address as `0x${string}`,
@@ -191,13 +193,12 @@ describe("DeterministicAccountFactory.sol", function () {
           const walletClient = await hre.viem.getWalletClient(securedBy);
           const signature = await getSignatureForSecuredAccount({
             publicClient,
-            signer: {
+            factory: SupportedFactory.LIGHT_ACCOUNT_FACTORY,
+            securedBy: {
+              address: securedBy,
               type: SignerType.EOA,
               signer: walletClient,
-              address: securedBy,
             },
-            factory: SupportedFactory.LIGHT_ACCOUNT_FACTORY,
-            securedBy,
             salt,
             owner: user.address as `0x${string}`,
             daFactory: (await daFactory.getAddress()) as `0x${string}`,
@@ -264,11 +265,11 @@ describe("DeterministicAccountFactory.sol", function () {
           const signature = await getSignatureForSecuredAccount({
             publicClient,
             factory: SupportedFactory.LIGHT_ACCOUNT_FACTORY,
-            securedBy: smartContractAccount,
-            signer: {
+            securedBy: {
               type: SignerType.LIGHT_ACCOUNT,
               address: smartContractAccount,
-              privateKey: signerPrivateKey,
+              signerAddress,
+              signerPrivateKey,
             },
             salt,
             owner: user.address as `0x${string}`,

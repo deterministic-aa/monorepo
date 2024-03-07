@@ -16,6 +16,7 @@ contract DeterministicAccountSigner is
     Initializable
 {
     EnumerableMap.AddressToUintMap private _expirations;
+
     constructor(
         address initialOwner
     ) EIP712("DeterministicAccountSigner", "0.2.0") Ownable(initialOwner) {
@@ -55,9 +56,27 @@ contract DeterministicAccountSigner is
         bytes32 hash,
         bytes memory signature
     ) external view returns (bytes4 magicValue) {
-        address signer = ECDSA.recover(hash, signature);
+        bytes32 digest = _hashTypedDataV4(
+            keccak256(abi.encode(keccak256("MessageHash(bytes32 hash)"), hash))
+        );
+        address signer = ECDSA.recover(digest, signature);
         if (isValidSigner(signer)) {
-            return this.isValidSignature.selector;
+            return IERC1271.isValidSignature.selector;
+        } else {
+            return 0x0;
+        }
+    }
+
+    function isValidSignature(
+        bytes memory message,
+        bytes memory signature
+    ) external view returns (bytes4 magicValue) {
+        bytes32 digest = _hashTypedDataV4(
+            keccak256(abi.encode(keccak256("MessageHash(bytes hash)"), message))
+        );
+        address signer = ECDSA.recover(digest, signature);
+        if (isValidSigner(signer)) {
+            return 0x20c13b0b; // LEGACY TYPE
         } else {
             return 0x0;
         }
