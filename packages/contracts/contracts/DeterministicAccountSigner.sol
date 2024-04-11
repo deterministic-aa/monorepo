@@ -6,6 +6,7 @@ import {IERC1271} from "@openzeppelin/contracts/interfaces/IERC1271.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {Initializable} from "@openzeppelin/contracts/proxy/utils/Initializable.sol";
 import {EnumerableMap} from "@openzeppelin/contracts/utils/structs/EnumerableMap.sol";
+import {IDeterministicAccountSigner} from "./interfaces/IDeterministicAccountSigner.sol";
 
 using EnumerableMap for EnumerableMap.AddressToUintMap;
 
@@ -13,7 +14,8 @@ contract DeterministicAccountSigner is
     Ownable,
     EIP712,
     IERC1271,
-    Initializable
+    Initializable,
+    IDeterministicAccountSigner
 {
     EnumerableMap.AddressToUintMap private _expirations;
 
@@ -55,7 +57,7 @@ contract DeterministicAccountSigner is
     function isValidSignature(
         bytes32 hash,
         bytes memory signature
-    ) external view returns (bytes4 magicValue) {
+    ) override(IERC1271, IDeterministicAccountSigner) external view returns (bytes4 magicValue) {
         bytes32 digest = _hashTypedDataV4(
             keccak256(abi.encode(keccak256("MessageHash(bytes32 hash)"), hash))
         );

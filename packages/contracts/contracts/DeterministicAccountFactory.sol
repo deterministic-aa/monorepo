@@ -5,6 +5,7 @@ import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import {IERC1271} from "@openzeppelin/contracts/interfaces/IERC1271.sol";
 import {IERC4337Factory} from "./interfaces/IERC4337Factory.sol";
 import {IOwnable} from "./interfaces/IOwnable.sol";
+import {IDeterministicAccountFactory} from "./interfaces/IDeterministicAccountFactory.sol";
 
 /**
  * @title DeterministicAccountFactory
@@ -15,7 +16,7 @@ import {IOwnable} from "./interfaces/IOwnable.sol";
  * specifically for the account's factory. Utilities for address generation and code encoding available at
  * https://github.com/deterministic-aa/monorepo.
  */
-contract DeterministicAccountFactory is EIP712 {
+contract DeterministicAccountFactory is EIP712, IDeterministicAccountFactory {
     bytes32 private constant CREATE_ACCOUNT_TYPEHASH =
         keccak256(
             "CreateAccount(address factory,uint256 salt,bytes transferOwnershipCode)"
