@@ -15,7 +15,9 @@ import {
   getLightAccountTransferOwnershipCode,
   getLightAccountSignature,
 } from "./account-types/light-account";
+import { getMultiOwnerModularAccountTransferOwnershipCode } from "./account-types/multi-owner-modular-account";
 import { DETERMINISTIC_AA_V010 } from "./constants";
+import { getMultiOwnerModularAccount } from "./account-types/multi-owner-modular-account";
 
 export type Salt = Hex | bigint;
 
@@ -42,11 +44,15 @@ export const getDeterministicAddress = (args: GetDeterministicAddressInput) => {
   const { factory, salt, securedBy, daFactory } = args;
   // uint256 can be replaced with bytes32 in the keccak256 call
   const wrappedSalt = keccak256(
-    encodePacked(["address", "bytes32"], [securedBy, saltToHex(salt)])
+    encodePacked(["address", "bytes32"], [securedBy, saltToHex(salt)]),
   );
+
   switch (factory) {
     case SupportedFactory.LIGHT_ACCOUNT_FACTORY: {
       return getLightAccountAddress(wrappedSalt, daFactory);
+    }
+    case SupportedFactory.MULTI_OWNER_MODULAR_ACCOUNT_FACTORY: {
+      return getMultiOwnerModularAccount(wrappedSalt, daFactory);
     }
     default:
       throw new Error("Unsupported factory");
@@ -56,15 +62,22 @@ export const getDeterministicAddress = (args: GetDeterministicAddressInput) => {
 export type GetTransferOwnershipCodeInput = {
   factory: SupportedFactory;
   owner: Address;
+  daFactory?: Address;
 };
 
 export const getTransferOwnershipCode = (
-  args: GetTransferOwnershipCodeInput
+  args: GetTransferOwnershipCodeInput,
 ) => {
-  const { factory, owner } = args;
+  const { factory, owner, daFactory } = args;
   switch (factory) {
     case SupportedFactory.LIGHT_ACCOUNT_FACTORY: {
       return getLightAccountTransferOwnershipCode(owner);
+    }
+    case SupportedFactory.MULTI_OWNER_MODULAR_ACCOUNT_FACTORY: {
+      return getMultiOwnerModularAccountTransferOwnershipCode(
+        [owner],
+        [daFactory || DETERMINISTIC_AA_V010],
+      );
     }
     default:
       throw new Error("Unsupported factory");
@@ -127,10 +140,14 @@ const eip712ABI = [
 ];
 
 export const getSignatureForSecuredAccount = async (
-  args: GetSignatureForSecuredAccount
+  args: GetSignatureForSecuredAccount,
 ): Promise<Hex> => {
   const { publicClient, securedBy, factory, salt, owner, daFactory } = args;
-  const transferOwnershipCode = getTransferOwnershipCode({ factory, owner });
+  const transferOwnershipCode = getTransferOwnershipCode({
+    factory,
+    owner,
+    daFactory,
+  });
   const _daFactory = daFactory || DETERMINISTIC_AA_V010;
   const [, name, version, chainId, verifyingContract, ,] =
     (await publicClient.readContract({

@@ -5,6 +5,8 @@ import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import {IERC1271} from "@openzeppelin/contracts/interfaces/IERC1271.sol";
 import {IERC4337Factory} from "./interfaces/IERC4337Factory.sol";
 import {IOwnable} from "./interfaces/IOwnable.sol";
+import {IMultiOwnerModularAccountFactory} from "./interfaces/IMultiOwnerModularAccountFactory.sol";
+import {IMultiOwnerPlugin} from "./interfaces/IMultiOwnerPlugin.sol";
 
 /**
  * @title DeterministicAccountFactory
@@ -20,6 +22,8 @@ contract DeterministicAccountFactory is EIP712 {
         keccak256(
             "CreateAccount(address factory,uint256 salt,bytes transferOwnershipCode)"
         );
+    address public constant ALCHEMY_MULTI_OWNER_MODULAR_ACCOUNT_FACTORY =
+        0x000000e92D78D90000007F0082006FDA09BD5f11;
 
     /**
      * @notice Emitted when a new account is created.
@@ -94,7 +98,18 @@ contract DeterministicAccountFactory is EIP712 {
         uint256 wrappedSalt = uint256(
             keccak256(abi.encodePacked(securedBy, salt))
         );
-        return IERC4337Factory(factory).getAddress(address(this), wrappedSalt);
+        if (factory == ALCHEMY_MULTI_OWNER_MODULAR_ACCOUNT_FACTORY) {
+            address[] memory owners = new address[](1);
+            owners[0] = address(this);
+            return
+                IMultiOwnerModularAccountFactory(factory).getAddress(
+                    wrappedSalt,
+                    owners
+                );
+        } else {
+            return
+                IERC4337Factory(factory).getAddress(address(this), wrappedSalt);
+        }
     }
 
     /**
@@ -142,22 +157,57 @@ contract DeterministicAccountFactory is EIP712 {
         uint256 wrappedSalt = uint256(
             keccak256(abi.encodePacked(securedBy, salt))
         );
-        address payable account = IERC4337Factory(factory).createAccount(
-            address(this),
-            wrappedSalt
-        );
-        address computed = getDeterministicAddress(factory, securedBy, salt);
-        require(
-            account == computed,
-            "Deployed account address does not match predicted address"
-        );
-        (bool success, ) = account.call{value: msg.value}(
-            transferOwnershipCode
-        );
-        require(success, "Transfer ownership failed");
-        address owner = IOwnable(account).owner();
-        emit AccountCreated(factory, securedBy, account, owner);
-        return account;
+        address payable account;
+        if (factory == ALCHEMY_MULTI_OWNER_MODULAR_ACCOUNT_FACTORY) {
+            address[] memory tempOwners = new address[](1);
+            tempOwners[0] = address(this);
+            account = IMultiOwnerModularAccountFactory(factory).createAccount(
+                wrappedSalt,
+                tempOwners
+            );
+
+            address computed = getDeterministicAddress(
+                factory,
+                securedBy,
+                salt
+            );
+            require(
+                account == computed,
+                "Deployed account address does not match predicted address"
+            );
+
+            (bool success, ) = account.call(transferOwnershipCode);
+            require(success, "Transfer ownership failed");
+
+            IMultiOwnerPlugin multiOwnerPlugin = IMultiOwnerPlugin(
+                IMultiOwnerModularAccountFactory(factory).MULTI_OWNER_PLUGIN()
+            );
+            address[] memory newOwners = multiOwnerPlugin.ownersOf(account);
+            emit AccountCreated(factory, securedBy, account, newOwners[0]);
+            return account;
+        } else {
+            account = IERC4337Factory(factory).createAccount(
+                address(this),
+                wrappedSalt
+            );
+
+            address computed = getDeterministicAddress(
+                factory,
+                securedBy,
+                salt
+            );
+            require(
+                account == computed,
+                "Deployed account address does not match predicted address"
+            );
+            (bool success, ) = account.call{value: msg.value}(
+                transferOwnershipCode
+            );
+            require(success, "Transfer ownership failed");
+            address owner = IOwnable(account).owner();
+            emit AccountCreated(factory, securedBy, account, owner);
+            return account;
+        }
     }
 
     function _hashCreateAccountCode(
