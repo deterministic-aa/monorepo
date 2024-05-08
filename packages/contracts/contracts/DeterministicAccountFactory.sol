@@ -54,14 +54,13 @@ contract DeterministicAccountFactory is EIP712 {
      * @param factory The factory address to use for creating the account.
      * @param salt A unique salt to ensure address determinism.
      * @param transferOwnershipCode Function call data to transfer ownership.
-     * @return The address of the newly created account.
      */
     function createAccount(
         address factory,
         uint256 salt,
         bytes calldata transferOwnershipCode
-    ) external payable returns (address) {
-        return _createAccount(factory, msg.sender, salt, transferOwnershipCode);
+    ) external payable {
+        _createAccount(factory, msg.sender, salt, transferOwnershipCode);
     }
 
     /**
@@ -71,7 +70,6 @@ contract DeterministicAccountFactory is EIP712 {
      * @param securedBy The address that secured the account.
      * @param signature ECDSA signature for TypedDataV4
      * @param transferOwnershipCode Function call data to transfer ownership.
-     * @return The address of the newly created account.
      */
     function createSecuredAccount(
         address factory,
@@ -79,7 +77,7 @@ contract DeterministicAccountFactory is EIP712 {
         address securedBy,
         bytes calldata signature,
         bytes calldata transferOwnershipCode
-    ) external payable returns (address) {
+    ) external payable {
         bool isValidSignature = hasValidSignature(
             factory,
             salt,
@@ -88,7 +86,7 @@ contract DeterministicAccountFactory is EIP712 {
             signature
         );
         require(isValidSignature, "Invalid signature");
-        return _createAccount(factory, securedBy, salt, transferOwnershipCode);
+        _createAccount(factory, securedBy, salt, transferOwnershipCode);
     }
 
     /**
@@ -172,7 +170,7 @@ contract DeterministicAccountFactory is EIP712 {
         address securedBy,
         uint256 salt,
         bytes calldata transferOwnershipCode
-    ) internal returns (address) {
+    ) internal {
         uint256 wrappedSalt = uint256(
             keccak256(abi.encodePacked(securedBy, salt))
         );
@@ -203,7 +201,6 @@ contract DeterministicAccountFactory is EIP712 {
             );
             address[] memory newOwners = multiOwnerPlugin.ownersOf(account);
             emit AccountCreated(factory, securedBy, account, newOwners[0]);
-            return account;
         } else if (factory == KERNEL_V2_4_FACTORY) {
             bytes memory initData = abi.encodeWithSelector(
                 bytes4(keccak256("initialize(address,bytes)")),
@@ -236,7 +233,6 @@ contract DeterministicAccountFactory is EIP712 {
             address owner = IECDSAValidator(KERNEL_V2_4_VALIDATOR)
                 .ecdsaValidatorStorage(account);
             emit AccountCreated(factory, securedBy, account, owner);
-            return account;
         } else {
             account = IERC4337Factory(factory).createAccount(
                 address(this),
@@ -258,7 +254,6 @@ contract DeterministicAccountFactory is EIP712 {
             require(success, "Transfer ownership failed");
             address owner = IOwnable(account).owner();
             emit AccountCreated(factory, securedBy, account, owner);
-            return account;
         }
     }
 
