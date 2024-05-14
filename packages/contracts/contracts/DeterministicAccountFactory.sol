@@ -7,6 +7,8 @@ import {IERC4337Factory} from "./interfaces/IERC4337Factory.sol";
 import {IOwnable} from "./interfaces/IOwnable.sol";
 import {IMultiOwnerModularAccountFactory} from "./interfaces/IMultiOwnerModularAccountFactory.sol";
 import {IMultiOwnerPlugin} from "./interfaces/IMultiOwnerPlugin.sol";
+import {IKernelFactory} from "./interfaces/IKernelFactory.sol";
+import {IECDSAValidator} from "./interfaces/IECDSAValidator.sol";
 
 /**
  * @title DeterministicAccountFactory
@@ -24,6 +26,12 @@ contract DeterministicAccountFactory is EIP712 {
         );
     address public constant ALCHEMY_MULTI_OWNER_MODULAR_ACCOUNT_FACTORY =
         0x000000e92D78D90000007F0082006FDA09BD5f11;
+    address public constant KERNEL_V2_4_FACTORY =
+        0x5de4839a76cf55d0c90e2061ef4386d962E15ae3;
+    address public constant KERNEL_V2_4_VALIDATOR =
+        0xd9AB5096a832b9ce79914329DAEE236f8Eea0390;
+    address public constant KERNEL_V2_4_IMPLEMENTATION =
+        0xd3082872F8B06073A021b4602e022d5A070d7cfC;
 
     /**
      * @notice Emitted when a new account is created.
@@ -104,6 +112,17 @@ contract DeterministicAccountFactory is EIP712 {
                     wrappedSalt,
                     owners
                 );
+        } else if (factory == KERNEL_V2_4_FACTORY) {
+            bytes memory initData = abi.encodeWithSelector(
+                bytes4(keccak256("initialize(address,bytes)")),
+                KERNEL_V2_4_VALIDATOR,
+                abi.encodePacked(address(this))
+            );
+            return
+                IKernelFactory(factory).getAccountAddress(
+                    initData,
+                    wrappedSalt
+                );
         } else {
             return
                 IERC4337Factory(factory).getAddress(address(this), wrappedSalt);
@@ -182,6 +201,38 @@ contract DeterministicAccountFactory is EIP712 {
             );
             address[] memory newOwners = multiOwnerPlugin.ownersOf(account);
             emit AccountCreated(factory, securedBy, account, newOwners[0]);
+        } else if (factory == KERNEL_V2_4_FACTORY) {
+            bytes memory initData = abi.encodeWithSelector(
+                bytes4(keccak256("initialize(address,bytes)")),
+                KERNEL_V2_4_VALIDATOR,
+                abi.encodePacked(address(this))
+            );
+
+            account = payable(
+                IKernelFactory(factory).createAccount(
+                    KERNEL_V2_4_IMPLEMENTATION,
+                    initData,
+                    uint256(wrappedSalt)
+                )
+            );
+
+            address computed = getDeterministicAddress(
+                factory,
+                securedBy,
+                salt
+            );
+            require(
+                account == computed,
+                "Deployed account address does not match predicted address"
+            );
+            (bool success, ) = account.call{value: msg.value}(
+                transferOwnershipCode
+            );
+            require(success, "Transfer ownership failed");
+
+            address owner = IECDSAValidator(KERNEL_V2_4_VALIDATOR)
+                .ecdsaValidatorStorage(account);
+            emit AccountCreated(factory, securedBy, account, owner);
         } else {
             account = IERC4337Factory(factory).createAccount(
                 address(this),

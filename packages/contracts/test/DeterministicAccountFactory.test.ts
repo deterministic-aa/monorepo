@@ -16,8 +16,13 @@ import { DeterministicAccountSigner__factory } from "../typechain-types";
 const factories = [
   SupportedFactory.LIGHT_ACCOUNT_FACTORY,
   SupportedFactory.MULTI_OWNER_MODULAR_ACCOUNT_FACTORY,
+  SupportedFactory.KERNEL_V2_4_FACTORY,
 ];
-const testNames = ["Light Account", "Multi Owner Modular Account"];
+const testNames = [
+  "Light Account",
+  "Multi Owner Modular Account",
+  "Kernel v2.4",
+];
 
 describe("DeterministicAccountFactory.sol", function () {
   // We define a fixture to reuse the same setup in every test.
@@ -238,12 +243,7 @@ describe("DeterministicAccountFactory.sol", function () {
               ),
             )
               .to.emit(daFactory, "AccountCreated")
-              .withArgs(
-                factory,
-                securedBy,
-                offchainPrediction,
-                user.address,
-              );
+              .withArgs(factory, securedBy, offchainPrediction, user.address);
           });
         });
         describe("Sign by LightAccount", () => {

@@ -18,6 +18,7 @@ import {
 import { getMultiOwnerModularAccountTransferOwnershipCode } from "./account-types/multi-owner-modular-account";
 import { DETERMINISTIC_AA_V010 } from "./constants";
 import { getMultiOwnerModularAccount } from "./account-types/multi-owner-modular-account";
+import { getKernelAddress, getKernelTransferOwnershipCode } from "./account-types/kernel-v2.4";
 
 export type Salt = Hex | bigint;
 
@@ -54,6 +55,9 @@ export const getDeterministicAddress = (args: GetDeterministicAddressInput) => {
     case SupportedFactory.MULTI_OWNER_MODULAR_ACCOUNT_FACTORY: {
       return getMultiOwnerModularAccount(wrappedSalt, daFactory);
     }
+    case SupportedFactory.KERNEL_V2_4_FACTORY: {
+      return getKernelAddress(wrappedSalt, daFactory);
+    }
     default:
       throw new Error("Unsupported factory");
   }
@@ -78,6 +82,9 @@ export const getTransferOwnershipCode = (
         [owner],
         [daFactory || DETERMINISTIC_AA_V010],
       );
+    }
+    case SupportedFactory.KERNEL_V2_4_FACTORY: {
+      return getKernelTransferOwnershipCode(owner);
     }
     default:
       throw new Error("Unsupported factory");
