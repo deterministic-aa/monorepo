@@ -1,6 +1,6 @@
 {
   "name": "@deterministic-aa/contracts",
-  "version": "0.3.0-0",
+  "version": "0.3.0-1",
   "license": "GPL-3.0",
   "scripts": {
     "compile": "hardhat compile && hardhat typechain",
